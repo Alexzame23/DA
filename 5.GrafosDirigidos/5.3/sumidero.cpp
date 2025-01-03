@@ -106,7 +106,7 @@ bool resuelveCaso() {
    
    // escribir la solución
 
-    if(!sumideros.empty()){
+    if(!sumideros.empty() && sumideros.size() < 2){
         cout << "SI ";
         while(!sumideros.empty()){
             cout << sumideros.front() << " ";

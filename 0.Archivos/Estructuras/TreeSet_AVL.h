@@ -1,3 +1,4 @@
+
 /**
  * Implementación de conjuntos mediante Árboles de búsqueda AVL
  *
@@ -27,15 +28,16 @@ protected:
      * y la altura.
      */
     struct TreeNode;
-    using Link = TreeNode *;
+    using Link = TreeNode*;
 
     struct TreeNode {
         T elem;       //elemento
         Link iz, dr;  //hijos izquierdo y derecho
+        int tam_i;        //número hijos iz + 1
         int altura;   //altura
 
-        TreeNode(T const &e, Link i = nullptr, Link d = nullptr,
-                 int alt = 1) : elem(e), iz(i), dr(d), altura(alt) {}
+        TreeNode(T const& e, Link i = nullptr, Link d = nullptr,
+            int alt = 1) : elem(e), iz(i), dr(d), altura(alt) {}
     };
 
     // puntero a la raíz de la estructura jerárquica de nodos
@@ -53,12 +55,12 @@ public:
     Set(Comparator c = Comparator()) : raiz(nullptr), nelems(0), menor(c) {}
 
     // constructor por copia
-    Set(Set const &other) {
+    Set(Set const& other) {
         copia(other);
     }
 
     // operador de asignación
-    Set &operator=(Set const &that) {
+    Set& operator=(Set const& that) {
         if (this != &that) {
             libera(raiz);
             copia(that);
@@ -71,7 +73,11 @@ public:
         libera(raiz);
     };
 
-    bool insert(T const &e) {
+    T const& kesimo(int k) const {
+        return buscaKesimo(k, raiz);
+    }
+
+    bool insert(T const& e) {
         return inserta(e, raiz);
     }
 
@@ -83,11 +89,11 @@ public:
         return nelems;
     }
 
-    bool contains(T const &e) const {
+    bool contains(T const& e) const {
         return pertenece(e, raiz);
     }
 
-    bool erase(T const &e) {
+    bool erase(T const& e) {
         return borra(e, raiz);
     }
 
@@ -103,7 +109,17 @@ protected:
 
     static const int TREE_INDENTATION = 4;
 
-    void copia(Set const &other) {
+    T const& buscaKesimo(int k, Link a) const {
+        if (a == nullptr) {
+            return -1;
+        }
+        else if (a->tam_i == k) { return a->elem; }
+        else if (a->tam_i > k && a->iz != nullptr) { return buscaKesimo(k, a->iz); }
+        else if (a->tam_i < k && a->dr != nullptr) {  return buscaKesimo(k - a->tam_i, a->dr); }
+        else { return -1; }
+    }
+
+    void copia(Set const& other) {
         raiz = copia(other.raiz);
         nelems = other.nelems;
         menor = other.menor;
@@ -122,31 +138,41 @@ protected:
         }
     }
 
-    bool pertenece(T const &e, Link a) const {
+    bool pertenece(T const& e, Link a) const {
         if (a == nullptr) {
             return false;
-        } else if (menor(e, a->elem)) {
+        }
+        else if (menor(e, a->elem)) {
             return pertenece(e, a->iz);
-        } else if (menor(a->elem, e)) {
+        }
+        else if (menor(a->elem, e)) {
             return pertenece(e, a->dr);
-        } else { // e == a->elem
+        }
+        else { // e == a->elem
             return true;
         }
     }
 
-    bool inserta(T const &e, Link &a) {
+    bool inserta(T const& e, Link& a) {
         bool crece;
         if (a == nullptr) { // se inserta el nuevo elemento e
             a = new TreeNode(e);
+            a->tam_i = 1;
             ++nelems;
             crece = true;
-        } else if (menor(e, a->elem)) {
+        }
+        else if (menor(e, a->elem)) {
             crece = inserta(e, a->iz);
-            if (crece) reequilibraDer(a);
-        } else if (menor(a->elem, e)) {
+            if (crece) {
+                a->tam_i++;
+                reequilibraDer(a);
+            }
+        }
+        else if (menor(a->elem, e)) {
             crece = inserta(e, a->dr);
             if (crece) reequilibraIzq(a);
-        } else // el elemento e ya estaba en el árbol
+        }
+        else // el elemento e ya estaba en el árbol
             crece = false;
         return crece;
     }
@@ -156,8 +182,9 @@ protected:
         else return a->altura;
     }
 
-    void rotaDer(Link &r2) {
+    void rotaDer(Link& r2) {
         Link r1 = r2->iz;
+        r2->tam_i -= r1->tam_i;
         r2->iz = r1->dr;
         r1->dr = r2;
         r2->altura = std::max(altura(r2->iz), altura(r2->dr)) + 1;
@@ -165,8 +192,9 @@ protected:
         r2 = r1;
     }
 
-    void rotaIzq(Link &r1) {
+    void rotaIzq(Link& r1) {
         Link r2 = r1->dr;
+        r2->tam_i += r1->tam_i;
         r1->dr = r2->iz;
         r2->iz = r1;
         r1->altura = std::max(altura(r1->iz), altura(r1->dr)) + 1;
@@ -174,62 +202,68 @@ protected:
         r1 = r2;
     }
 
-    void rotaIzqDer(Link &r3) {
+    void rotaIzqDer(Link& r3) {
         rotaIzq(r3->iz);
         rotaDer(r3);
     }
 
-    void rotaDerIzq(Link &r1) {
+    void rotaDerIzq(Link& r1) {
         rotaDer(r1->dr);
         rotaIzq(r1);
     }
 
-    void reequilibraIzq(Link &a) {
+    void reequilibraIzq(Link& a) {
         if (altura(a->dr) - altura(a->iz) > 1) {
             if (altura(a->dr->iz) > altura(a->dr->dr))
                 rotaDerIzq(a);
             else rotaIzq(a);
-        } else a->altura = std::max(altura(a->iz), altura(a->dr)) + 1;
+        }
+        else a->altura = std::max(altura(a->iz), altura(a->dr)) + 1;
     }
 
-    void reequilibraDer(Link &a) {
+    void reequilibraDer(Link& a) {
         if (altura(a->iz) - altura(a->dr) > 1) {
             if (altura(a->iz->dr) > altura(a->iz->iz))
                 rotaIzqDer(a);
             else rotaDer(a);
-        } else a->altura = std::max(altura(a->iz), altura(a->dr)) + 1;
+        }
+        else a->altura = std::max(altura(a->iz), altura(a->dr)) + 1;
     }
 
     // devuelve y borra el mínimo del árbol con raíz en a
-    T borraMin(Link &a) {
+    T borraMin(Link& a) {
         if (a->iz == nullptr) {
             T min = a->elem;
             a = a->dr;
             --nelems;
             return min;
-        } else {
+        }
+        else {
             T min = borraMin(a->iz);
             reequilibraIzq(a);
             return min;
         }
     }
 
-    bool borra(T const &e, Link &a) {
+    bool borra(T const& e, Link& a) {
         bool decrece = false;
         if (a != nullptr) {
             if (menor(e, a->elem)) {
                 decrece = borra(e, a->iz);
                 if (decrece) reequilibraIzq(a);
-            } else if (menor(a->elem, e)) {
+            }
+            else if (menor(a->elem, e)) {
                 decrece = borra(e, a->dr);
                 if (decrece) reequilibraDer(a);
-            } else { // e == a->elem
+            }
+            else { // e == a->elem
                 if (a->iz == nullptr || a->dr == nullptr) {
                     Link aux = a;
                     a = (a->iz == nullptr) ? a->dr : a->iz;
                     --nelems;
                     delete aux;
-                } else { // tiene dos hijos
+                }
+                else { // tiene dos hijos
                     T min = borraMin(a->dr);
                     a->elem = min;
                     reequilibraDer(a);
@@ -240,10 +274,10 @@ protected:
         return decrece;
     }
 
-    static void graph_rec(std::ostream &out, int indent, Link raiz) {
+    static void graph_rec(std::ostream& out, int indent, Link raiz) {
         if (raiz != nullptr) {
             graph_rec(out, indent + TREE_INDENTATION, raiz->dr);
-            out << std::setw(indent) << " " << raiz->elem << std::endl;
+            out << std::setw(indent) << " " << raiz->elem << " " << raiz->tam_i << std::endl;
             graph_rec(out, indent + TREE_INDENTATION, raiz->iz);
         }
     }
@@ -252,26 +286,26 @@ public:
     // iteradores que recorren los elementos del conjunto de menor a mayor
     class const_iterator {
     public:
-        T const &operator*() const {
+        T const& operator*() const {
             if (act == nullptr)
                 throw std::out_of_range("No hay elemento a consultar");
             return act->elem;
         }
 
-        T const *operator->() const {
+        T const* operator->() const {
             return &operator*();
         }
 
-        const_iterator &operator++() {  // ++ prefijo
+        const_iterator& operator++() {  // ++ prefijo
             next();
             return *this;
         }
 
-        bool operator==(const_iterator const &that) const {
+        bool operator==(const_iterator const& that) const {
             return act == that.act;
         }
 
-        bool operator!=(const_iterator const &that) const {
+        bool operator!=(const_iterator const& that) const {
             return !(this->operator==(that));
         }
 
@@ -290,7 +324,8 @@ public:
         Link first(Link ptr) {
             if (ptr == nullptr) {
                 return nullptr;
-            } else { // buscamos el nodo más a la izquierda
+            }
+            else { // buscamos el nodo más a la izquierda
                 while (ptr->iz != nullptr) {
                     ancestros.push(ptr);
                     ptr = ptr->iz;
@@ -302,11 +337,14 @@ public:
         void next() {
             if (act == nullptr) {
                 throw std::out_of_range("El iterador no puede avanzar");
-            } else if (act->dr != nullptr) { // primero del hijo derecho
+            }
+            else if (act->dr != nullptr) { // primero del hijo derecho
                 act = first(act->dr);
-            } else if (ancestros.empty()) { // hemos llegado al final
+            }
+            else if (ancestros.empty()) { // hemos llegado al final
                 act = nullptr;
-            } else { // podemos retroceder
+            }
+            else { // podemos retroceder
                 act = ancestros.top();
                 ancestros.pop();
             }

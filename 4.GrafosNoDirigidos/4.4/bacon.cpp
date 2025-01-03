@@ -37,7 +37,7 @@ bool resuelveCaso() {
    unordered_map<int, string> indexToActor;
    int actorIndex = 0;
 
-   Grafo g(50000); // Creación de un grafo con capacidad suficiente
+   Grafo g(100000); // Creación de un grafo con capacidad suficiente
 
    // Lectura de las películas y sus actores
    for (int i = 0; i < p; ++i) {

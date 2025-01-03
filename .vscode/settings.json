@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.embeddedhtml": "html",
         "iostream": "cpp",
         "deque": "cpp",
         "atomic": "cpp",
@@ -65,6 +66,7 @@
         "numeric": "cpp",
         "random": "cpp",
         "string": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "string_view": "cpp"
     }
 }
