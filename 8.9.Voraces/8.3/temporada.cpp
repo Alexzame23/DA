@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 using namespace std;
 
 #include "PriorityQueue.h"  // propios o los de las estructuras de datos de clase
@@ -25,47 +26,45 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-struct usuarios
-{
-    int id;
-    int prioridad;
-    int periodicidad;
-};
-
-bool operator<(usuarios const& a, usuarios const& b){
-    return a.prioridad < b.prioridad || (a.prioridad == b.prioridad && a.id < b.id);
-}
-
-
 bool resuelveCaso() {
    
    // leer los datos de la entrada
-    int n;
-    cin >> n;
+    int n,m;
+    cin >> n >> m;
    
-    if (n <= 0)
+    if (!std::cin)  // fin de la entrada
         return false;
-    
-    PriorityQueue<usuarios> users;
-    int a,b;
+
+    PriorityQueue<int, greater<int>> jugadores, equipaciones;
+    int aux;
+
     for(int i = 0; i < n; ++i){
-        cin >> a >> b;
-        users.push({a,b,b});
+        cin >> aux;
+        jugadores.push(aux);
+    }
+
+    for(int i = 0; i < m; ++i){
+        cin >> aux;
+        equipaciones.push(aux);
     }
    
    // resolver el caso posiblemente llamando a otras funciones
-    int k;
-    usuarios aux;
-    cin >> k;
-    for(int i = 0; i < k; ++i){
-        cout << users.top().id << "\n";
-        aux = users.top();
-        users.pop();
-        users.push({aux.id, (aux.prioridad + aux.periodicidad) , aux.periodicidad});
+
+    int sol = 0;
+
+    while(!equipaciones.empty() && !jugadores.empty()){
+        if(jugadores.top() + 1 >= equipaciones.top() && jugadores.top()-1 <= equipaciones.top()){
+            ++sol;
+            jugadores.pop();
+            equipaciones.pop();
+        }
+        else if(jugadores.top() > equipaciones.top())   jugadores.pop();
+        else if(equipaciones.top() > jugadores.top())   equipaciones.pop();
     }
    
    // escribir la solución
-    cout << "---\n";
+
+    cout << n - sol << "\n";
 
    return true;
 }

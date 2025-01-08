@@ -101,7 +101,11 @@ bool resuelveCaso() {
 
     for(int i = 0; i < v; ++i){
         aux = sol.grado(i);
-        if(aux == v - 1) sumideros.push(i);
+        if(aux == v - 1){
+            if(sol.hayCamino(0) && sol.hayCamino(i-1)){
+                sumideros.push(i);
+            }
+        }
     }
    
    // escribir la solución

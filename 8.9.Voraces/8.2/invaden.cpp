@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 using namespace std;
 
 #include "PriorityQueue.h"  // propios o los de las estructuras de datos de clase
@@ -25,17 +26,6 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-struct usuarios
-{
-    int id;
-    int prioridad;
-    int periodicidad;
-};
-
-bool operator<(usuarios const& a, usuarios const& b){
-    return a.prioridad < b.prioridad || (a.prioridad == b.prioridad && a.id < b.id);
-}
-
 
 bool resuelveCaso() {
    
@@ -43,29 +33,39 @@ bool resuelveCaso() {
     int n;
     cin >> n;
    
-    if (n <= 0)
+    if (!std::cin)  // fin de la entrada
         return false;
-    
-    PriorityQueue<usuarios> users;
-    int a,b;
+   
+    PriorityQueue<int, greater<int>> enemigos, defensores;
+    int aux;
+
     for(int i = 0; i < n; ++i){
-        cin >> a >> b;
-        users.push({a,b,b});
+        cin >> aux;
+        enemigos.push(aux);
     }
-   
+    
+    for(int i = 0; i < n; ++i){
+        cin >> aux;
+        defensores.push(aux);
+    }
+
+    //enemigos.print();
+    //defensores.print();
+
    // resolver el caso posiblemente llamando a otras funciones
-    int k;
-    usuarios aux;
-    cin >> k;
-    for(int i = 0; i < k; ++i){
-        cout << users.top().id << "\n";
-        aux = users.top();
-        users.pop();
-        users.push({aux.id, (aux.prioridad + aux.periodicidad) , aux.periodicidad});
+
+    int sol = 0;
+    while (!enemigos.empty())
+    {
+        if(enemigos.top() <= defensores.top()){
+            ++sol;
+            defensores.pop();
+        }
+        enemigos.pop();
     }
-   
+
    // escribir la solución
-    cout << "---\n";
+    cout << sol << "\n";
 
    return true;
 }

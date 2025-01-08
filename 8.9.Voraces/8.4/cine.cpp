@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 using namespace std;
 
 #include "PriorityQueue.h"  // propios o los de las estructuras de datos de clase
@@ -25,18 +26,6 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-struct usuarios
-{
-    int id;
-    int prioridad;
-    int periodicidad;
-};
-
-bool operator<(usuarios const& a, usuarios const& b){
-    return a.prioridad < b.prioridad || (a.prioridad == b.prioridad && a.id < b.id);
-}
-
-
 bool resuelveCaso() {
    
    // leer los datos de la entrada
@@ -46,26 +35,31 @@ bool resuelveCaso() {
     if (n <= 0)
         return false;
     
-    PriorityQueue<usuarios> users;
-    int a,b;
+    vector<int> inicios(n);
+    char puntos;
+    int auxh, auxm;
+    vector<int> duracion(n);
+
     for(int i = 0; i < n; ++i){
-        cin >> a >> b;
-        users.push({a,b,b});
+        cin >> auxh;
+        cin >> puntos;
+        cin >> auxm;
+        inicios[i] = (auxh*60) + auxm;
+        cin >> auxm;
+        duracion[i] = auxm;
     }
+    
    
    // resolver el caso posiblemente llamando a otras funciones
-    int k;
-    usuarios aux;
-    cin >> k;
-    for(int i = 0; i < k; ++i){
-        cout << users.top().id << "\n";
-        aux = users.top();
-        users.pop();
-        users.push({aux.id, (aux.prioridad + aux.periodicidad) , aux.periodicidad});
+    int sol = (n > 0) ? 1 : 0;
+    
+    for(int i = 0; i < n-1; ++i){
+        if((inicios[i] + duracion[i]) + 10 <= inicios[i+1]) ++sol;
     }
    
    // escribir la solución
-    cout << "---\n";
+
+    cout << sol << "\n";
 
    return true;
 }

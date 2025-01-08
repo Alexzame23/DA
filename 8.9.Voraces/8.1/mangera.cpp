@@ -7,9 +7,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 using namespace std;
 
-#include "PriorityQueue.h"  // propios o los de las estructuras de datos de clase
 
 /*@ <answer>
   
@@ -25,47 +25,35 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-struct usuarios
-{
-    int id;
-    int prioridad;
-    int periodicidad;
-};
-
-bool operator<(usuarios const& a, usuarios const& b){
-    return a.prioridad < b.prioridad || (a.prioridad == b.prioridad && a.id < b.id);
-}
-
-
 bool resuelveCaso() {
    
    // leer los datos de la entrada
-    int n;
-    cin >> n;
+    long long int n,l;
+    cin >> n >> l;
    
-    if (n <= 0)
+    if (!std::cin)  // fin de la entrada
         return false;
     
-    PriorityQueue<usuarios> users;
-    int a,b;
-    for(int i = 0; i < n; ++i){
-        cin >> a >> b;
-        users.push({a,b,b});
+    vector<long long int> agujeros(n);
+    for(long long int i = 1; i < n+1; ++i){
+        cin >> agujeros[n-i];
     }
-   
+
    // resolver el caso posiblemente llamando a otras funciones
-    int k;
-    usuarios aux;
-    cin >> k;
-    for(int i = 0; i < k; ++i){
-        cout << users.top().id << "\n";
-        aux = users.top();
-        users.pop();
-        users.push({aux.id, (aux.prioridad + aux.periodicidad) , aux.periodicidad});
-    }
    
+    long long int sol = 0, i = agujeros.size()-1, aux = agujeros.back() + l;
+    
+    while(!agujeros.empty()){
+        while(agujeros[agujeros.size()-2] <= aux){
+            agujeros.pop_back();
+        }
+        agujeros.pop_back();
+        aux = agujeros.back() + l;
+        ++sol;
+    }
+
    // escribir la solución
-    cout << "---\n";
+   cout << sol << "\n";
 
    return true;
 }
