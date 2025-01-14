@@ -35,6 +35,7 @@ bool resuelveCaso() {
    
    // resolver el caso posiblemente llamando a otras funciones
    
+   
    // escribir la solución
 
    return true;
